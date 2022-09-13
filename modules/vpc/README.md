@@ -22,14 +22,14 @@ AWS Provider Version 2.56.0
 ## Usage
 
 # Prerequistie:
-  * If IAM Roles needed for Flow Log to permit to push logs to Cloudwatch --> Initialise Compliance Module and create required IAM Roles and Policies (Flow Logs Default Roles and Policies stored @  github.com/makeen-project/terraform-templates-infra/roles_and_policies)
+  * If IAM Roles needed for Flow Log to permit to push logs to Cloudwatch --> Initialise Compliance Module and create required IAM Roles and Policies (Flow Logs Default Roles and Policies stored @  github.com/asgard-project/terraform-templates-infra/roles_and_policies)
   * If Cloud Watch Log Group Needed to push logs to cloudwatch log group desstination--> Initialise Monitoring Module and create required Cloud watch log group
   
 
 ``` hcl
 
 module "network" {
-  source = "github.com/makeen-project/terraform-templates-infra/modules/network_and_cnd"
+  source = "github.com/asgard-project/terraform-templates-infra/modules/network_and_cnd"
   create_vpc  = true
   create_flow_logs = true
   iam_role_arn = module.compliance.iam_role_arn["${name of the IAM Role}"] #Also need to initialize compliance module

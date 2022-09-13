@@ -22,7 +22,7 @@ variable "environment" {
 variable "project_name" {
   type = string
   description = "Name of the Application/Project (to be used as Prefix in naming resources)"
-  default = "makeen-infra-templates"
+  default = "asgard-infra-templates"
 }
 
 variable "cloudwatch_event_rule" {

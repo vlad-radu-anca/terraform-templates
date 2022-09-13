@@ -13,7 +13,7 @@ Terraform 0.12.26
 AWS Provider Version 2.56.0
 
 ### Prerequistie:
-  * If IAM Roles needed for Task Execution --> Initialise Compliance Module and create required IAM Roles and Policies (ECS Task Execution Default Roles and Policies stored @  github.com/makeen-project/terraform-templates-infra/roles_and_policies)
+  * If IAM Roles needed for Task Execution --> Initialise Compliance Module and create required IAM Roles and Policies (ECS Task Execution Default Roles and Policies stored @  github.com/asgard-project/terraform-templates-infra/roles_and_policies)
   * If Subnets and Security Groups Needed for ECS Service Network Configuration --> Initialise Network and CND Module and create VPC Network
 
 ## Usage
@@ -23,20 +23,20 @@ AWS Provider Version 2.56.0
   module "ecs" {
     source = "./modules/container" 
     #ECR Repo and Cluster  
-    ecr_repo                            = ["makeen-test-repo"]
-    ecs_cluster                         = ["makeen-test-cluster"]
+    ecr_repo                            = ["asgard-test-repo"]
+    ecs_cluster                         = ["asgard-test-cluster"]
 
     #ECS Task Definition Configuration
-    container_name                      = "makeen-test"
-    container_image                     = module.ecs.ecr_repository_url["makeen-test-repo"]
-    family                              = "makeen-test-task-defintion"
+    container_name                      = "asgard-test"
+    container_image                     = module.ecs.ecr_repository_url["asgard-test-repo"]
+    family                              = "asgard-test-task-defintion"
     requires_compatibilities            = ["EC2"]
     network_mode                        = "bridge"
 
     #ECS Services Configuration
-    service_name = ["makeen-test-service"]
+    service_name = ["asgard-test-service"]
     task_definition_arn = [module.ecs.aws_ecs_task_definition_arn]
-    cluster                             = module.ecs.aws_ecs_cluster_arn["makeen-test-cluster"]
+    cluster                             = module.ecs.aws_ecs_cluster_arn["asgard-test-cluster"]
     launch_type                         = "EC2"
 
     environment = "test"
@@ -53,24 +53,24 @@ AWS Provider Version 2.56.0
     source                              = "./modules/container"
 
     #ECR Repo and Cluster  
-    ecr_repo                            = ["makeen-test-repo"]
-    ecs_cluster                         = ["makeen-test-cluster"]
+    ecr_repo                            = ["asgard-test-repo"]
+    ecs_cluster                         = ["asgard-test-cluster"]
 
     #ECS Task Definition Configuration
     #format : module.ecs.ecr_repository_url[${var.ecr_repo}]
-    container_image                     = module.ecs.ecr_repository_url["makeen-test-repo"] 
-    container_name                      = "makeen-test"
+    container_image                     = module.ecs.ecr_repository_url["asgard-test-repo"] 
+    container_name                      = "asgard-test"
     #format : module.compliance.iam_role_arn[${var.iam_roles_policy_name}]
     execution_role_arn                  = module.compliance.iam_role_arn["ecs_task_execution"] #Also need to initialize compliance module
-    family                              = "makeen-test-task-defintion"
+    family                              = "asgard-test-task-defintion"
     requires_compatibilities            = ["FARGATE"]
     network_mode                        = "awsvpc"
 
     #ECS Services Configuration
-    service_name = ["makeen-test-service"]
+    service_name = ["asgard-test-service"]
     task_definition_arn = [module.ecs.aws_ecs_task_definition_arn]
     #format : module.ecs.aws_ecs_cluster_arn[${var.ecs_cluster}]
-    cluster                             = module.ecs.aws_ecs_cluster_arn["makeen-test-cluster"]
+    cluster                             = module.ecs.aws_ecs_cluster_arn["asgard-test-cluster"]
     launch_type                         = "FARGATE"
     network_configuration               = [{
       subnets          = module.network.public_subnet_ids
@@ -105,9 +105,9 @@ AWS Provider Version 2.56.0
       ``` hcl
       module "ecs" {
         container_image                     = "ecr repository url with tag" 
-        container_name                      = "makeen-test"
+        container_name                      = "asgard-test"
         execution_role_arn                  = "arn of iam which allows ecs to call other aws services"
-        family                              = "makeen-test-task-defintion"
+        family                              = "asgard-test-task-defintion"
         requires_compatibilities            = ["FARGATE"]
         network_mode                        = "awsvpc"
         environment = "test"
@@ -119,7 +119,7 @@ AWS Provider Version 2.56.0
       ``` hcl
       module "ecs" {
         source                              = "./modules/container"
-        service_name = ["makeen-test-service"]
+        service_name = ["asgard-test-service"]
         task_definition_arn = ["arn of task defintion or family with revision"]
         cluster                             = "arn of a ecs cluster"
         launch_type                         = "FARGATE"
