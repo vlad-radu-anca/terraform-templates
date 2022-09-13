@@ -1,0 +1,32 @@
+[
+    {
+        "name": ${name},
+        "image": ${image},
+        "cpu": ${cpu},
+        "memory": ${memory},
+        "memoryReservation": ${memoryReservation},
+        "links": ${links},
+        "portMappings": ${portMappings},
+        "secrets": ${secrets},
+        "essential": ${essential},
+        "entryPoint": ${entryPoint},
+        "command": ${command},
+        "environment": ${environment},
+        "mountPoints": ${mountPoints},
+        "volumesFrom": ${volumesFrom},
+        "dependsOn": ${dependsOn},
+        "startTimeout": ${startTimeout},
+        "stopTimeout": ${stopTimeout},
+        "hostname": ${hostname},
+        "user": ${user},
+        "workingDirectory": ${workingDirectory},
+        "disableNetworking": ${disableNetworking},
+        "privileged": ${privileged},
+        "readonlyRootFilesystem": ${readonlyRootFilesystem},
+        "dnsServers": ${dnsServers},
+        "dnsSearchDomains": ${dnsSearchDomains},
+        "extraHosts": ${extraHosts},
+        "logConfiguration": ${logConfiguration},
+        "healthCheck": ${healthCheck}
+    }
+]
