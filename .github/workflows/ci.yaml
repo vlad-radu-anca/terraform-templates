@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       modules: ${{ steps.list.outputs.modules }}
+      examples: ${{ steps.list.outputs.examples }}
     steps:
       - uses: actions/checkout@v5
       - id: list
@@ -26,6 +27,9 @@ jobs:
           MODULES=$(ls -d modules/*/ | xargs -n1 basename | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "modules=$MODULES" >> "$GITHUB_OUTPUT"
           echo "Modules: $MODULES"
+          EXAMPLES=$(ls -d modules/*/examples/*/ 2>/dev/null | sed 's|^modules/||;s|/$||' | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "examples=$EXAMPLES" >> "$GITHUB_OUTPUT"
+          echo "Examples: $EXAMPLES"
 
   fmt:
     name: terraform fmt
@@ -48,6 +52,32 @@ jobs:
     defaults:
       run:
         working-directory: modules/${{ matrix.module }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      - name: Cache providers
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: tf-providers-${{ runner.os }}-${{ hashFiles('modules/**/versions.tf') }}
+      - run: mkdir -p "$TF_PLUGIN_CACHE_DIR"
+      - run: terraform init -backend=false -input=false
+      - run: terraform validate -no-color
+
+  validate-examples:
+    name: example (${{ matrix.example }})
+    needs: discover
+    if: needs.discover.outputs.examples != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        example: ${{ fromJson(needs.discover.outputs.examples) }}
+    defaults:
+      run:
+        working-directory: modules/${{ matrix.example }}
     steps:
       - uses: actions/checkout@v5
       - uses: hashicorp/setup-terraform@v4
