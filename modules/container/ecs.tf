@@ -100,51 +100,49 @@ resource "aws_ecs_service" "this" {
 }
 
 
-data "template_file" "this" {
-  count    = var.family != [] ? 1 : 0
-  template = file("${path.module}/container_defintion.json.tpl")
-
-  vars = {
-    name              = jsonencode(var.container_name)
-    image             = jsonencode(var.container_image)
-    memory            = var.container_mem_hard_limit != null ? jsonencode(var.container_mem_hard_limit) : "null"
-    memoryReservation = var.container_mem_soft_limit != null ? jsonencode(var.container_mem_soft_limit) : "null"
-    portMappings      = jsonencode(var.port_mappings)
-
-    essential    = var.essential != null ? jsonencode(var.essential) : "null"
-    startTimeout = var.startTimeout != null ? jsonencode(var.startTimeout) : "null"
-    stopTimeout  = var.stopTimeout != null ? jsonencode(var.stopTimeout) : "null"
-    healthCheck  = var.health_check != null ? jsonencode(var.health_check) : "null"
-
-    cpu                    = var.container_reserved_cpu != null ? jsonencode(var.container_reserved_cpu) : "null"
-    entryPoint             = var.container_entry_point != null ? jsonencode(var.container_entry_point) : "null"
-    command                = var.container_command != null ? jsonencode(var.container_command) : "null"
-    workingDirectory       = var.container_working_directory != null ? jsonencode(var.container_working_directory) : "null"
-    environment            = var.container_env_vars != null ? jsonencode(var.container_env_vars) : "null"
-    secrets                = var.container_secrets != null ? jsonencode(var.container_secrets) : "null"
-    links                  = var.links != null ? jsonencode(var.links) : "null"
-    hostname               = var.container_hostname != null ? jsonencode(var.container_hostname) : "null"
-    dnsServers             = var.dns_servers != null ? jsonencode(var.dns_servers) : "null"
-    dnsSearchDomains       = var.dns_search_domains != null ? jsonencode(var.dns_search_domains) : "null"
-    extraHosts             = var.extra_hosts != null ? jsonencode(var.extra_hosts) : "null"
-    disableNetworking      = var.disableNetworking != null ? jsonencode(var.disableNetworking) : "null"
-    privileged             = var.privileged != null ? jsonencode(var.privileged) : "null"
-    readonlyRootFilesystem = var.readonlyRootFilesystem != null ? jsonencode(var.readonlyRootFilesystem) : "null"
-
-    mountPoints      = var.mount_points != null ? jsonencode(var.mount_points) : "null"
-    volumesFrom      = var.volumes_from != null ? jsonencode(var.volumes_from) : "null"
-    logConfiguration = var.log_configuration != null ? jsonencode(var.log_configuration) : "null"
-
-    dependsOn = var.container_depends_on != null ? jsonencode(var.container_depends_on) : "null"
-    user      = var.user != null ? jsonencode(var.user) : "null"
-
+# Container definition built as an HCL object and encoded once. Null attributes are
+# dropped so ECS only sees the fields that were actually set.
+locals {
+  container_definition = {
+    name                   = var.container_name
+    image                  = var.container_image
+    cpu                    = var.container_reserved_cpu
+    memory                 = var.container_mem_hard_limit
+    memoryReservation      = var.container_mem_soft_limit
+    links                  = var.links
+    portMappings           = var.port_mappings
+    secrets                = var.container_secrets
+    essential              = var.essential
+    entryPoint             = var.container_entry_point
+    command                = var.container_command
+    environment            = var.container_env_vars
+    mountPoints            = var.mount_points
+    volumesFrom            = var.volumes_from
+    dependsOn              = var.container_depends_on
+    startTimeout           = var.startTimeout
+    stopTimeout            = var.stopTimeout
+    hostname               = var.container_hostname
+    user                   = var.user
+    workingDirectory       = var.container_working_directory
+    disableNetworking      = var.disableNetworking
+    privileged             = var.privileged
+    readonlyRootFilesystem = var.readonlyRootFilesystem
+    dnsServers             = var.dns_servers
+    dnsSearchDomains       = var.dns_search_domains
+    extraHosts             = var.extra_hosts
+    logConfiguration       = var.log_configuration
+    healthCheck            = var.health_check
   }
+
+  container_definitions = jsonencode([
+    { for k, v in local.container_definition : k => v if v != null }
+  ])
 }
 
 resource "aws_ecs_task_definition" "this" {
   for_each                 = toset(var.family)
   family                   = each.value
-  container_definitions    = data.template_file.this[0].rendered
+  container_definitions    = local.container_definitions
   requires_compatibilities = var.requires_compatibilities
   task_role_arn            = var.task_role_arn
   execution_role_arn       = var.execution_role_arn
