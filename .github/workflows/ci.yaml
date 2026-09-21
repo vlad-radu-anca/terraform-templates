@@ -83,17 +83,33 @@ jobs:
   security:
     name: trivy config scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
     steps:
       - uses: actions/checkout@v5
-      - uses: aquasecurity/trivy-action@v0.36.0
+      - name: Scan (human-readable)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: modules
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: "0" # report only; tighten once findings are triaged
+      - name: Scan (SARIF)
+        if: ${{ !github.event.repository.private }}
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: config
           scan-ref: modules
           format: sarif
           output: trivy.sarif
           severity: HIGH,CRITICAL
-          exit-code: "0" # report only; tighten once findings are triaged
-      - uses: github/codeql-action/upload-sarif@v4
-        if: always()
+          exit-code: "0"
+      # Code scanning needs GitHub Advanced Security on private repos; upload only when public.
+      - name: Upload to code scanning
+        if: ${{ !github.event.repository.private }}
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy.sarif
