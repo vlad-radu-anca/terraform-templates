@@ -1,10 +1,10 @@
 resource "aws_instance" "this" {
-  count = var.instance_count
-  ami              = var.ami
-  instance_type    = var.instance_type
-  user_data        = var.user_data
-  user_data_base64 = var.user_data_base64
-  subnet_id = element(var.subnet_ids,count.index)
+  count                  = var.instance_count
+  ami                    = var.ami
+  instance_type          = var.instance_type
+  user_data              = var.user_data
+  user_data_base64       = var.user_data_base64
+  subnet_id              = element(var.subnet_ids, count.index)
   key_name               = var.key_name
   monitoring             = var.monitoring
   get_password_data      = var.get_password_data
@@ -56,14 +56,14 @@ resource "aws_instance" "this" {
   tenancy                              = var.tenancy
 
   tags = {
-        Terraform   = true
-        Environment = var.environment
-        Name        = "${var.project_name}-${var.environment}-${var.ec2_name}-ec2"
-    }
+    Terraform   = true
+    Environment = var.environment
+    Name        = "${var.project_name}-${var.environment}-${var.ec2_name}-ec2"
+  }
 
   volume_tags = {
-        Terraform   = true
-        Environment = var.environment
-        Name        = "${var.project_name}-${var.environment}-${var.ec2_name}-ec2-volume"
-    }
+    Terraform   = true
+    Environment = var.environment
+    Name        = "${var.project_name}-${var.environment}-${var.ec2_name}-ec2-volume"
+  }
 }

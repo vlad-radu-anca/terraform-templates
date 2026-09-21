@@ -7,13 +7,13 @@ variable "instance_count" {
 variable "ami" {
   description = "ID of AMI to use for the instance"
   type        = string
-    default     = null
+  default     = null
 }
 
 variable "ec2_name" {
   description = "Name of EC2 instance"
   type        = string
-    default     = null
+  default     = null
 }
 
 variable "placement_group" {
@@ -55,7 +55,7 @@ variable "instance_initiated_shutdown_behavior" {
 variable "instance_type" {
   description = "The type of instance to start"
   type        = string
-   default     = null
+  default     = null
 }
 
 variable "key_name" {
@@ -132,13 +132,13 @@ variable "ephemeral_block_device" {
 
 
 variable "environment" {
-  type = string
+  type        = string
   description = "Name of the Environment (to be used as Prefix in naming resources)"
-  default = "testing"
+  default     = "testing"
 }
 
 variable "project_name" {
-  type = string
+  type        = string
   description = "Name of the Application/Project (to be used as Prefix in naming resources)"
-  default = "asgard-infra-templates"
+  default     = "asgard-infra-templates"
 }

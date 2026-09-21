@@ -1,9 +1,9 @@
 variable "health_check_config" {
   description = "description"
-  type        = list(object({
+  type = list(object({
     failure_threshold = number
-    resource_path = string
-    type = string
+    resource_path     = string
+    type              = string
   }))
   default = []
 }
@@ -12,7 +12,7 @@ variable "health_check_config" {
 
 variable "health_check_custom_config" {
   description = "description"
-  type        = list(object({
+  type = list(object({
     failure_threshold = number
   }))
   default = []
@@ -65,60 +65,60 @@ variable "enable_cross_zone_load_balancing" {
 
 variable "access_logs" {
   description = "description"
-  type        = list(object({
-    bucket = string
-    prefix = string
+  type = list(object({
+    bucket  = string
+    prefix  = string
     enabled = bool
   }))
-  default     = []
+  default = []
 }
 
 variable "subnet_mapping" {
   description = "description"
-  type        = list(object({
-    subnet_id = string
+  type = list(object({
+    subnet_id     = string
     allocation_id = string
   }))
-  default     = []
+  default = []
 }
 
 variable "lb_listener" {
   description = "description"
-  type        = list(object({
-    load_balancer_arn = string
-    alb_listener_port = number
+  type = list(object({
+    load_balancer_arn     = string
+    alb_listener_port     = number
     alb_listener_protocol = string
-    ssl_policy = string
-    certificate_arn = string
+    ssl_policy            = string
+    certificate_arn       = string
     default_action = list(object({
-      type = string
+      type             = string
       target_group_arn = string
       forward = list(object({
         target_group = list(object({
-          arn = string
+          arn    = string
           weight = number
         }))
         stickiness = list(object({
-          enabled = bool
+          enabled  = bool
           duration = number
         }))
       }))
       redirect = list(object({
-          host = string
-          path = string
-          port = string
-          protocol = string
-          query = string
-          status_code = string
+        host        = string
+        path        = string
+        port        = string
+        protocol    = string
+        query       = string
+        status_code = string
       }))
       fixed_response = list(object({
-          content_type = string
-          message_body = string
-          status_code = string
+        content_type = string
+        message_body = string
+        status_code  = string
       }))
     }))
   }))
-  default     = []
+  default = []
 }
 
 
@@ -188,111 +188,111 @@ variable "default_action" {
 */
 variable "attach_certs_to_alb" {
   description = "description"
-  type        = list(object({
-    listener_arn = string
+  type = list(object({
+    listener_arn    = string
     certificate_arn = string
   }))
-  default     = []
+  default = []
 }
 
 variable "listener_rule" {
   description = "description"
-  type        = list(object({
+  type = list(object({
     listener_arn = string
-    priority = string
+    priority     = string
     action = list(object({
-      type = string
+      type             = string
       target_group_arn = string
       forward = list(object({
         target_group = list(object({
-          arn = string
+          arn    = string
           weight = number
         }))
         stickiness = list(object({
-          enabled = bool
+          enabled  = bool
           duration = number
         }))
       }))
       redirect = list(object({
-          host = string
-          path = string
-          port = string
-          protocol = string
-          query = string
-          status_code = string
+        host        = string
+        path        = string
+        port        = string
+        protocol    = string
+        query       = string
+        status_code = string
       }))
       fixed_response = list(object({
-          content_type = string
-          message_body = string
-          status_code = string
+        content_type = string
+        message_body = string
+        status_code  = string
       }))
     }))
     condition = list(object({
       host_header = list(string)
       http_header = list(object({
         http_header_name = string
-        values = list(string)
+        values           = list(string)
       }))
       http_request_method = list(string)
-      path_pattern = string
-      key= string
-      value= string
+      path_pattern        = string
+      key                 = string
+      value               = string
     }))
   }))
-  default     = []
+  default = []
 }
 
 variable "lb_target_group" {
   description = "description"
-  type        = list(object({
-    alb_tg_name = string
-    alb_tg_port = number
-    alb_tg_protocol = string
-    vpc_id = string
-    slow_start = string
+  type = list(object({
+    alb_tg_name                   = string
+    alb_tg_port                   = number
+    alb_tg_protocol               = string
+    vpc_id                        = string
+    slow_start                    = string
     load_balancing_algorithm_type = string
-    target_type = string
+    target_type                   = string
     stickiness = list(object({
-      type           = string
-      cookie_duration   = number
-      enabled   = bool
+      type            = string
+      cookie_duration = number
+      enabled         = bool
     }))
     health_check = list(object({
-      enabled           = bool
-      interval   = number
-      path   = string
-      port           = number
-      protocol   = string
-      timeout   = number
-      healthy_threshold           = number
-      unhealthy_threshold   = number
-      matcher   = string
+      enabled             = bool
+      interval            = number
+      path                = string
+      port                = number
+      protocol            = string
+      timeout             = number
+      healthy_threshold   = number
+      unhealthy_threshold = number
+      matcher             = string
     }))
   }))
-  default     = []
+  default = []
 }
 
 variable "lb_target_group_attachment" {
   description = "description"
   type = list(object({
-    target_group_arn = string
-    target_id = string
-    alb_tg_port = number
+    target_group_arn  = string
+    target_id         = string
+    alb_tg_port       = number
     availability_zone = string
   }))
-  default     = []
+  default = []
 }
 
 
 
 variable "environment" {
-  type = string
+  type        = string
   description = "Name of the Environment (to be used as Prefix in naming resources)"
-  default = "testing"
+  default     = "testing"
 }
 
 variable "project_name" {
-  type = string
+  type        = string
   description = "Name of the Application/Project (to be used as Prefix in naming resources)"
-  default = "asgard-infra-templates"
+  default     = "asgard-infra-templates"
 }
