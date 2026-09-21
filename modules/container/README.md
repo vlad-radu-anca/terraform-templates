@@ -13,8 +13,8 @@ Terraform 0.12.26
 AWS Provider Version 2.56.0
 
 ### Prerequistie:
-  * If IAM Roles needed for Task Execution --> Initialise Compliance Module and create required IAM Roles and Policies (ECS Task Execution Default Roles and Policies stored @  github.com/asgard-project/terraform-templates-infra/roles_and_policies)
-  * If Subnets and Security Groups Needed for ECS Service Network Configuration --> Initialise Network and CND Module and create VPC Network
+  * If IAM Roles needed for Task Execution --> Initialise Compliance Module and create required IAM Roles and Policies (see the [`iam`](../iam) module)
+  * If Subnets and Security Groups Needed for ECS Service Network Configuration --> use the [`vpc`](../vpc) module to create the network
 
 ## Usage
 
