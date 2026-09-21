@@ -12,11 +12,11 @@ variable "image_tag_mutability" {
 
 variable "encryption_configuration" {
   description = "The encryption type to use for the repository. Valid values are AES256 or KMS. Defaults to AES256."
-  type        = list(object({
+  type = list(object({
     encryption_type = string
     kms_key         = string
   }))
-  default     = null
+  default = null
 }
 
 
@@ -45,13 +45,29 @@ variable "ecs_cluster" {
   default     = []
 }
 
+variable "cluster_capacity_providers" {
+  description = "Capacity providers to associate with every cluster in `ecs_cluster` (e.g. [\"FARGATE\", \"FARGATE_SPOT\"]). Empty list skips the association."
+  type        = list(string)
+  default     = []
+}
+
+variable "cluster_default_capacity_provider_strategy" {
+  description = "Default capacity provider strategy applied to the clusters. Each entry: capacity_provider (string), weight (number), base (number, only one entry may set it)."
+  type = list(object({
+    capacity_provider = string
+    weight            = optional(number)
+    base              = optional(number)
+  }))
+  default = []
+}
+
 variable "setting" {
   description = "Configuration block(s) with cluster settings. For example, this can be used to enable CloudWatch Container Insights for a cluster. "
-  type        = list(object({
-    name      = string
-    value     = string
-     }))
-  default     = []
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default = []
 }
 
 # variable "ecs_service_name_and_task_defintion" {
@@ -106,8 +122,8 @@ variable "force_new_deployment" {
 
 variable "health_check_grace_period_seconds" {
   description = "Seconds to ignore failing load balancer health checks on newly instantiated tasks to prevent premature shutdown.Only valid for services configured to use load balancers."
-  type        =  number
-  default     =  null
+  type        = number
+  default     = null
 }
 
 variable "iam_role" {
@@ -141,61 +157,61 @@ variable "desired_count" {
 }
 
 variable "load_balancer" {
-  description =<<-EOT
+  description = <<-EOT
   target_group_arn : (Required for ALB/NLB) The ARN of the Load Balancer target group to associate with the service.
   container_name : (Required) The name of the container to associate with the load balancer (as it appears in a container definition).
   container_port : (Required) The port on the container to associate with the load balancer.
   EOT
-  type       = list(object({
+  type = list(object({
     target_group_arn = string
     container_name   = string
     container_port   = number
   }))
-  default     = []
+  default = []
 }
 
 variable "network_configuration" {
-  description =<<-EOT
+  description = <<-EOT
   subnets : (Required for ALB/NLB) The subnets associated with the task or service.
   security_groups : The security groups associated with the task or service. If you do not specify a security group, the default security group for the VPC is used.
   assign_public_ip : Assign a public IP address to the ENI (Fargate launch type only). Valid values are true or false.
   EOT
-  type      = list(object({
+  type = list(object({
     subnets          = set(string)
     security_groups  = set(string)
     assign_public_ip = bool
   }))
-  default     = []
+  default = []
 }
 
 variable "service_registries" {
-  description =<<-EOT
+  description = <<-EOT
   registry_arn : (The ARN of the Service Registry. The currently supported service registry is Amazon Route 53 Auto Naming Service(aws_service_discovery_service).
   port : The port value used if your Service Discovery service specified an SRV record.
   container_port : The port value, already specified in the task definition, to be used for your service discovery service.
   container_name : The container name value, already specified in the task definition, to be used for your service discovery service.
   EOT
-  type      = list(object({
+  type = list(object({
     registry_arn   = string
     port           = number
     container_port = number
     container_name = string
   }))
-  default     = []
+  default = []
 }
 
 variable "capacity_provider_strategy" {
-  description =<<-EOT
+  description = <<-EOT
   capacity_provider : The short name of the capacity provider.
   weight : The relative percentage of the total number of launched tasks that should use the specified capacity provider.
   base : The number of tasks, at a minimum, to run on the specified capacity provider. Only one capacity provider in a capacity provider strategy can have a base defined.
   EOT
-  type      = list(object({
-    capacity_provider   = string
-    weight           = number
-    base = number
+  type = list(object({
+    capacity_provider = string
+    weight            = number
+    base              = number
   }))
-  default     = []
+  default = []
 }
 
 variable "deployment_controller_type" {
@@ -232,11 +248,11 @@ variable "container_mem_soft_limit" {
 variable "port_mappings" {
   description = "Port mappings allow containers to access ports on the host container instance to send or receive traffic."
   type        = any
-  default     = [
+  default = [
     {
-      "containerPort": 123,
-      "hostPort": 123,
-      "protocol": "tcp"
+      "containerPort" : 123,
+      "hostPort" : 123,
+      "protocol" : "tcp"
     }
   ]
 }
@@ -416,7 +432,7 @@ variable "network_mode" {
 variable "cpu" {
   description = "The number of cpu units used by the task. If the requires_compatibilities is FARGATE this field is required."
   type        = number
-  default     =  256
+  default     = 256
 }
 
 variable "memory" {
@@ -426,7 +442,7 @@ variable "memory" {
 }
 
 variable "volume" {
-  description =<<-EOT
+  description = <<-EOT
   name : The name of the volume. This name is referenced in the sourceVolume parameter of container definition in the mountPoints section.
   host_path : The path on the host container instance that is presented to the container. If not set, ECS will create a nonpersistent data volume that starts empty and is deleted after the task has finished.
   scope : The scope for the Docker volume, which determines its lifecycle, either task or shared
@@ -437,47 +453,47 @@ variable "volume" {
   file_system_id : The ID of the EFS File System.
   root_directory : The path to mount on the host  
   EOT
-  type        = list(object({
+  type = list(object({
     name      = string
     host_path = string
     docker_volume_configuration = list(object({
-      scope   = string
-      autoprovision  = string
-      driver  = string
-      driver_opts  = string
-      labels  = string
+      scope         = string
+      autoprovision = string
+      driver        = string
+      driver_opts   = string
+      labels        = string
     }))
     efs_volume_configuration = list(object({
-      file_system_id  = string
-      root_directory  = string
+      file_system_id = string
+      root_directory = string
     }))
   }))
-  default     = []
+  default = []
 }
 
 variable "ecr_lifecycle_policy_file" {
   description = "File path for ECR  Life Cycle Policy"
-  type = string
-  default = null
+  type        = string
+  default     = null
 }
 
 variable "ecr_repository_policy_file" {
   description = "File path for ECR Repository Policy"
-  type = string
-  default = null
+  type        = string
+  default     = null
 }
 
 
 variable "environment" {
-  type = string
+  type        = string
   description = "Name of the Environment (to be used as Prefix in naming resources)"
-  default = "testing"
+  default     = "testing"
 }
 
 variable "project_name" {
-  type = string
+  type        = string
   description = "Name of the Application/Project (to be used as Prefix in naming resources)"
-  default = "asgard-infra-templates"
+  default     = "asgard-infra-templates"
 }
 
 

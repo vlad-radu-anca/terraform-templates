@@ -3,19 +3,19 @@
 #}
 
 output "public_subnet_ids" {
-    value = aws_subnet.public_subnet[*].id
+  value = aws_subnet.public_subnet[*].id
 }
 
 output "private_subnet_ids" {
-    value = aws_subnet.private_subnet[*].id
+  value = aws_subnet.private_subnet[*].id
 }
 
 output "vpc_default_sg" {
-    value = [aws_default_security_group.this[0].id]
+  value = [aws_default_security_group.this[0].id]
 }
 
 output "vpc_id" {
-    value = aws_vpc.this[0].id
+  value = aws_vpc.this[0].id
 }
 
 /*
