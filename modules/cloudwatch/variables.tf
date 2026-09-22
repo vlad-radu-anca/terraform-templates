@@ -1,15 +1,19 @@
 variable "cloudwatch_log_group_name" {
-  default = []
+  description = "Names of the CloudWatch log groups to create."
+  type        = list(string)
+  default     = []
 }
 
 variable "cloudwatch_kms_key_id" {
-  description = "The ARN of the KMS Key to use when encrypting log data"
+  description = "ARN of the KMS key used to encrypt log data. Null uses CloudWatch default encryption."
+  type        = string
   default     = null
 }
 
 variable "logs_retention_days" {
-  description = "Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653"
-  default     = "30"
+  description = "Log retention in days. One of 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, or 0 to retain forever."
+  type        = number
+  default     = 30
 }
 
 
@@ -26,30 +30,42 @@ variable "project_name" {
 }
 
 variable "cloudwatch_event_rule" {
-  description = "description"
+  description = <<-EOT
+  EventBridge rules, keyed internally by `name`. Set either `schedule_expression` for a
+  scheduled rule or `event_pattern` for an event-driven one. `state` replaces the
+  deprecated `is_enabled` argument: use `ENABLED`, `DISABLED`, or
+  `ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS`.
+  EOT
   type = list(object({
     name                = string
-    schedule_expression = string
-    event_bus_name      = string
-    event_pattern       = string
-    description         = string
-    role_arn            = string
-    is_enabled          = bool
+    description         = optional(string)
+    schedule_expression = optional(string)
+    event_bus_name      = optional(string)
+    event_pattern       = optional(string)
+    role_arn            = optional(string)
+    state               = optional(string, "ENABLED")
   }))
   default = []
+
+  validation {
+    condition = alltrue([
+      for r in var.cloudwatch_event_rule :
+      contains(["ENABLED", "DISABLED", "ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS"], r.state)
+    ])
+    error_message = "state must be ENABLED, DISABLED or ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS."
+  }
 }
 
 variable "cloudwatch_event_target" {
-  description = "description"
+  description = "Targets invoked by the rules above. `target_id` defaults to `<rule>-target` when omitted, and is used as the map key."
   type = list(object({
     rule           = string
-    event_bus_name = string
-    target_id      = string
     arn            = string
-    input          = string
-    input_path     = string
-    role_arn       = string
+    target_id      = optional(string)
+    event_bus_name = optional(string)
+    input          = optional(string)
+    input_path     = optional(string)
+    role_arn       = optional(string)
   }))
   default = []
 }
-

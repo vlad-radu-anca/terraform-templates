@@ -12,28 +12,33 @@ resource "aws_cloudwatch_log_group" "cloudwatch_log_group" {
 }
 
 resource "aws_cloudwatch_event_rule" "this" {
-  count               = length(var.cloudwatch_event_rule)
-  name                = lookup(var.cloudwatch_event_rule[count.index], "name", null)
-  schedule_expression = lookup(var.cloudwatch_event_rule[count.index], "schedule_expression", null)
-  event_bus_name      = lookup(var.cloudwatch_event_rule[count.index], "event_bus_name", null)
-  event_pattern       = lookup(var.cloudwatch_event_rule[count.index], "event_pattern", null)
-  description         = lookup(var.cloudwatch_event_rule[count.index], "description", null)
-  role_arn            = lookup(var.cloudwatch_event_rule[count.index], "role_arn", null)
-  is_enabled          = lookup(var.cloudwatch_event_rule[count.index], "is_enabled", null)
+  for_each = { for r in var.cloudwatch_event_rule : r.name => r }
+
+  name                = each.value.name
+  description         = each.value.description
+  schedule_expression = each.value.schedule_expression
+  event_bus_name      = each.value.event_bus_name
+  event_pattern       = each.value.event_pattern
+  role_arn            = each.value.role_arn
+
+  # "state" replaces the deprecated "is_enabled" argument.
+  state = each.value.state
+
   tags = {
     Terraform   = true
     Environment = var.environment
-    Name        = "${lookup(var.cloudwatch_event_rule[count.index], "name", null)}-event"
+    Name        = "${each.value.name}-event"
   }
 }
 
 resource "aws_cloudwatch_event_target" "this" {
-  count          = length(var.cloudwatch_event_target)
-  rule           = lookup(var.cloudwatch_event_target[count.index], "rule", null)
-  event_bus_name = lookup(var.cloudwatch_event_target[count.index], "event_bus_name", null)
-  target_id      = lookup(var.cloudwatch_event_target[count.index], "target_id", null)
-  arn            = lookup(var.cloudwatch_event_target[count.index], "arn", null)
-  input          = lookup(var.cloudwatch_event_target[count.index], "input", null)
-  input_path     = lookup(var.cloudwatch_event_target[count.index], "input_path", null)
-  role_arn       = lookup(var.cloudwatch_event_target[count.index], "role_arn", null)
+  for_each = { for t in var.cloudwatch_event_target : coalesce(t.target_id, "${t.rule}-target") => t }
+
+  rule           = each.value.rule
+  event_bus_name = each.value.event_bus_name
+  target_id      = each.value.target_id
+  arn            = each.value.arn
+  input          = each.value.input
+  input_path     = each.value.input_path
+  role_arn       = each.value.role_arn
 }
