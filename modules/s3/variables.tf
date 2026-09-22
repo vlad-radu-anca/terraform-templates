@@ -1,127 +1,176 @@
-variable "s3_bucket_name" {
-  description = "List of Bucket Name"
-  type        = list(string)
-  default     = []
+########################################
+# Naming / tagging
+########################################
+
+variable "project_name" {
+  description = "Name of the application/project, used as a prefix when naming resources."
+  type        = string
 }
 
-variable "s3_force_destroy" {
-  description = "Want to Delete S3 Bucket from terraform during terraform destroy?"
-  type        = bool
-  default     = true
+variable "environment" {
+  description = "Environment name (e.g. dev, staging, prod), used as a prefix when naming resources."
+  type        = string
 }
 
-variable "s3_policy_document" {
-  description = "Add S3 Bucket Policy Document"
+variable "bucket_name" {
+  description = "Bucket name. Defaults to `<project_name>-<environment>`. Ignored when `bucket_prefix` is set."
   type        = string
   default     = null
 }
 
-variable "s3_acl" {
-  description = "The canned ACL to apply. Defaults to private. Conflicts with grant"
+variable "bucket_prefix" {
+  description = "Generate a unique bucket name with this prefix instead of using `bucket_name`."
   type        = string
-  default     = "private"
+  default     = null
 }
 
-variable "s3_grant_acl_vars" {
+variable "tags" {
+  description = "Additional tags applied to the bucket."
+  type        = map(string)
+  default     = {}
+}
+
+variable "force_destroy" {
+  description = "Delete all objects when the bucket is destroyed. Keep false for anything holding real data."
+  type        = bool
+  default     = false
+}
+
+########################################
+# Access control
+########################################
+
+variable "object_ownership" {
+  description = "Object ownership: `BucketOwnerEnforced` (ACLs disabled, recommended), `BucketOwnerPreferred` or `ObjectWriter`."
+  type        = string
+  default     = "BucketOwnerEnforced"
+
+  validation {
+    condition     = contains(["BucketOwnerEnforced", "BucketOwnerPreferred", "ObjectWriter"], var.object_ownership)
+    error_message = "object_ownership must be BucketOwnerEnforced, BucketOwnerPreferred or ObjectWriter."
+  }
+}
+
+variable "block_public_access" {
+  description = "Apply all four public access blocks. Only set to false for a bucket that is deliberately public, such as a static website origin."
+  type        = bool
+  default     = true
+}
+
+variable "acl" {
+  description = "Canned ACL to apply. Only used when `object_ownership` is not `BucketOwnerEnforced`, because that setting disables ACLs."
+  type        = string
+  default     = null
+}
+
+variable "policy" {
+  description = "Bucket policy as a JSON string, typically from an `aws_iam_policy_document`."
+  type        = string
+  default     = null
+}
+
+########################################
+# Encryption
+########################################
+
+variable "kms_key_id" {
+  description = "KMS key ARN or ID for SSE-KMS encryption. Null uses SSE-S3 (`AES256`)."
+  type        = string
+  default     = null
+}
+
+variable "bucket_key_enabled" {
+  description = "Use an S3 bucket key with SSE-KMS, which reduces KMS request costs. Ignored for SSE-S3."
+  type        = bool
+  default     = true
+}
+
+########################################
+# Versioning
+########################################
+
+variable "versioning_enabled" {
+  description = "Enable object versioning. Null leaves versioning unmanaged by this module."
+  type        = bool
+  default     = null
+}
+
+variable "versioning_mfa_delete" {
+  description = "Require MFA to delete object versions. Only meaningful when versioning is enabled, and can only be changed by the bucket owner with MFA."
+  type        = bool
+  default     = null
+}
+
+########################################
+# Lifecycle
+########################################
+
+variable "lifecycle_rules" {
   description = <<-EOT
-  s3_acl_grant_type : Type of grantee to apply for. Valid values are CanonicalUser and Group. AmazonCustomerByEmail is not supported
-  s3_acl_grant_permission : List of permissions to apply for grantee. Valid values are READ, WRITE, READ_ACP, WRITE_ACP, FULL_CONTROL
-  s3_acl_grant_uri : Uri address to grant for. Used only when type is Group
+  Lifecycle rules keyed by rule ID. `prefix` limits the rule to a key prefix, `tags` narrows it further.
+  `expire_delete_markers` removes delete markers left behind once all noncurrent versions expire.
   EOT
+  type = map(object({
+    enabled = optional(bool, true)
+    prefix  = optional(string)
+    tags    = optional(map(string), {})
+    transitions = optional(list(object({
+      days          = number
+      storage_class = string
+    })), [])
+    noncurrent_version_transitions = optional(list(object({
+      days          = number
+      storage_class = string
+    })), [])
+    expiration_days                        = optional(number)
+    expire_delete_markers                  = optional(bool, false)
+    noncurrent_version_expiration_days     = optional(number)
+    abort_incomplete_multipart_upload_days = optional(number, 7)
+  }))
+  default = {}
+}
+
+########################################
+# Logging / CORS / website / acceleration
+########################################
+
+variable "logging" {
+  description = "Send server access logs to another bucket. The target bucket must grant write access to the S3 logging service."
+  type = object({
+    target_bucket = string
+    target_prefix = optional(string, "")
+  })
+  default = null
+}
+
+variable "cors_rules" {
+  description = "CORS rules for the bucket."
   type = list(object({
-    s3_acl_grant_type       = string
-    s3_acl_grant_permission = list(string)
-    s3_acl_grant_uri        = string
+    allowed_headers = optional(list(string))
+    allowed_methods = list(string)
+    allowed_origins = list(string)
+    expose_headers  = optional(list(string))
+    max_age_seconds = optional(number)
   }))
   default = []
+}
+
+variable "website" {
+  description = <<-EOT
+  Static website configuration. Set either `index_document` (with an optional `error_document`)
+  or `redirect_all_requests_to`. `routing_rules` is a JSON string.
+  EOT
+  type = object({
+    index_document           = optional(string)
+    error_document           = optional(string)
+    redirect_all_requests_to = optional(string)
+    routing_rules            = optional(string)
+  })
+  default = null
 }
 
 variable "acceleration_status" {
-  description = "Amazon S3 Transfer Acceleration enables fast, easy, and secure transfers of files over long distances between your client and an S3 bucket"
+  description = "Transfer acceleration: `Enabled` or `Suspended`. Null leaves it unmanaged."
   type        = string
-  default     = "Suspended"
-}
-
-
-variable "s3_static_website_vars" {
-  description = <<-EOT
-  index_document : Amazon S3 returns this index document when requests are made to the root domain or any of the subfolders
-  error_document : An absolute path to the document to return in case of a 4XX error.
-  redirect_all_requests_to : A hostname to redirect all website requests for this bucket to.
-  routing_rules : A json array containing routing rules describing redirect behavior and when redirects are applied.
-  EOT
-  type = object({
-    index_document           = string
-    error_document           = string
-    redirect_all_requests_to = string
-    routing_rules            = string
-  })
-  default = null
-}
-
-variable "s3_cors_vars" {
-  description = <<-EOT
-  allowed_headers : Specifies which headers are allowed
-  allowed_methods : Specifies which methods are allowed. Can be GET, PUT, POST, DELETE or HEAD
-  allowed_origins : Specifies which origins are allowed.
-  expose_headers : Specifies expose header in the response.
-  max_age_seconds : Specifies time in seconds that browser can cache the response for a preflight request.
-  EOT
-  type = object({
-    allowed_headers = list(string)
-    allowed_methods = list(string)
-    allowed_origins = list(string)
-    expose_headers  = list(string)
-    max_age_seconds = number
-  })
-  default = null
-}
-
-variable "s3_versioning" {
-  type = object({
-    enabled    = bool
-    mfa_delete = bool
-  })
-  default = null
-}
-
-variable "s3_logging" {
-  description = <<-EOT
-  target_bucket : The name of the bucket that will receive the log objects.
-  target_prefix : To specify a key prefix for log objects.
-  EOT
-  type = object({
-    target_bucket = string
-    target_prefix = string
-  })
-  default = null
-}
-
-variable "s3_lifecycle_rule_vars" {
-  type = list(object({
-    id      = string
-    prefix  = string
-    enabled = bool
-    transition = list(object({
-      days          = number
-      storage_class = string
-    }))
-    noncurrent_version_transition = list(object({
-      days          = number
-      storage_class = string
-    }))
-    noncurrent_version_expiration_days = number
-    expiration_days                    = number
-  }))
-  default = []
-}
-
-variable "environment" {
-  description = "Name of Environment"
-  type        = string
-}
-
-variable "project_name" {
-  description = "Name of Project"
-  type        = string
+  default     = null
 }
