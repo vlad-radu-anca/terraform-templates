@@ -162,11 +162,11 @@ resource "aws_route_table" "public_route_table" {
   }
 
   dynamic "route" {
-    for_each = var.public_route_rules == null ? [] : list(var.public_route_rules)
+    for_each = var.public_route_rules == null ? [] : var.public_route_rules
     content {
-      cidr_block                = lookup(public_route_rules, "cidr_block", null) == null ? null : lookup(public_route_rules, "cidr_block")
-      gateway_id                = lookup(public_route_rules, "gateway_id", null) == null ? null : lookup(public_route_rules, "gateway_id")
-      vpc_peering_connection_id = lookup(public_route_rules, "vpc_peering_connection_id", null) == null ? null : lookup(public_route_rules, "vpc_peering_connection_id")
+      cidr_block                = route.value.cidr_block
+      gateway_id                = route.value.gateway_id
+      vpc_peering_connection_id = route.value.vpc_peering_connection_id
     }
   }
 
@@ -188,11 +188,11 @@ resource "aws_route_table" "private_route_table" {
   }
 
   dynamic "route" {
-    for_each = var.private_route_rules == null ? [] : list(var.private_route_rules)
+    for_each = var.private_route_rules == null ? [] : var.private_route_rules
     content {
-      cidr_block                = lookup(private_route_rules, "cidr_block", null) == null ? null : lookup(private_route_rules, "cidr_block")
-      gateway_id                = lookup(private_route_rules, "gateway_id", null) == null ? null : lookup(private_route_rules, "gateway_id")
-      vpc_peering_connection_id = lookup(private_route_rules, "vpc_peering_connection_id", null) == null ? null : lookup(private_route_rules, "vpc_peering_connection_id")
+      cidr_block                = route.value.cidr_block
+      gateway_id                = route.value.gateway_id
+      vpc_peering_connection_id = route.value.vpc_peering_connection_id
     }
   }
 
