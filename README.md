@@ -22,7 +22,7 @@ The modules were originally written in 2021 for Terraform 0.13 and AWS provider 
 | [`database`](modules/database) | Aurora cluster, instances, parameter groups, security group | Provisioned or Serverless v2, Secrets Manager managed password |
 | [`docdb`](modules/docdb) | DocumentDB cluster and instances | |
 | [`elasticache`](modules/elasticache) | ElastiCache cluster | |
-| [`es`](modules/es) | Elasticsearch domain | Migration to OpenSearch planned |
+| [`opensearch`](modules/opensearch) | OpenSearch domain, security group, log groups and log resource policy | Encrypted, HTTPS enforced, VPC placed, FGAC |
 | [`s3`](modules/s3) | Bucket, public access block, encryption, versioning, lifecycle, logging, CORS, website, policy | Secure by default |
 | [`cdn`](modules/cdn) | CloudFront distribution, origin access identity | |
 | [`cloudfront_key_group`](modules/cloudfront_key_group) | CloudFront public keys and key groups | Signed URLs |
@@ -99,10 +99,9 @@ pre-commit install
 
 In order:
 
-1. `es`: migrate to `aws_opensearch_domain`
-2. `cdn`: cache and origin request policies instead of `forwarded_values`
-3. Descriptions for every variable, generated READMEs with terraform-docs, `examples/` for every module
-4. Tag `v1.0.0`
+1. `cdn`: cache and origin request policies instead of `forwarded_values`
+2. Descriptions for every variable, generated READMEs with terraform-docs, `examples/` for every module
+3. Tag `v1.0.0`
 
 ## License
 
