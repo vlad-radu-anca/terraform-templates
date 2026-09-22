@@ -19,7 +19,7 @@ The modules were originally written in 2021 for Terraform 0.13 and AWS provider 
 | [`autoscaling`](modules/autoscaling) | Application Auto Scaling targets and policies | For ECS services |
 | [`alb`](modules/alb) | ALB/NLB, listeners, rules, target groups | |
 | [`rds`](modules/rds) | RDS instance (PostgreSQL, MySQL, MariaDB), parameter/option groups, security group, replicas | Secrets Manager managed password |
-| [`database`](modules/database) | Aurora cluster and instances | |
+| [`database`](modules/database) | Aurora cluster, instances, parameter groups, security group | Provisioned or Serverless v2, Secrets Manager managed password |
 | [`docdb`](modules/docdb) | DocumentDB cluster and instances | |
 | [`elasticache`](modules/elasticache) | ElastiCache cluster | |
 | [`es`](modules/es) | Elasticsearch domain | Migration to OpenSearch planned |
@@ -99,13 +99,11 @@ pre-commit install
 
 In order:
 
-1. Replace the archived `template` provider with `templatefile()` in `container` and `cicd`
-2. Aurora: Serverless v2 scaling and Secrets Manager managed credentials in `database`
-3. `s3`: move inline bucket configuration to the dedicated `aws_s3_bucket_*` resources
-4. `es`: migrate to `aws_opensearch_domain`
-5. `cdn`: cache and origin request policies instead of `forwarded_values`
-6. Descriptions for every variable, generated READMEs with terraform-docs, `examples/` for every module
-7. Tag `v1.0.0`
+1. `s3`: move inline bucket configuration to the dedicated `aws_s3_bucket_*` resources
+2. `es`: migrate to `aws_opensearch_domain`
+3. `cdn`: cache and origin request policies instead of `forwarded_values`
+4. Descriptions for every variable, generated READMEs with terraform-docs, `examples/` for every module
+5. Tag `v1.0.0`
 
 ## License
 
