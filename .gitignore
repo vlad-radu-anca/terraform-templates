@@ -1,5 +1,7 @@
 # Terraform
 **/.terraform/
+# Modules are consumed by callers, who own provider pinning; never commit lock files here.
+**/.terraform.lock.hcl
 *.tfstate
 *.tfstate.*
 crash.log
