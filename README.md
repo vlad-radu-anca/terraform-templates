@@ -11,7 +11,7 @@ The modules were originally written in 2021 for Terraform 0.13 and AWS provider 
 
 | Module | Resources | Notes |
 | --- | --- | --- |
-| [`vpc`](modules/vpc) | VPC, subnets per AZ, IGW, NAT (single or per AZ), route tables, NACLs, flow logs, Cloud Map namespaces | Foundation for every other module |
+| [`vpc`](modules/vpc) | VPC, subnets per AZ, IGW, NAT (single or per AZ), route tables, NACLs, flow logs | Foundation for every other module |
 | [`security_group`](modules/security_group) | Security groups | |
 | [`eks`](modules/eks) | EKS cluster, managed node groups, add-ons, access entries, OIDC provider | Access-entry auth, IMDSv2, add-on ordering |
 | [`container`](modules/container) | ECR repositories, ECS cluster, capacity providers, services, task definitions | |
