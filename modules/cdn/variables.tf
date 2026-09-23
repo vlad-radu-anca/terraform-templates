@@ -1,255 +1,243 @@
-variable "alternate_domain_names" {
-  description = "Extra CNAMEs"
+########################################
+# Naming / tagging
+########################################
+
+variable "project_name" {
+  description = "Name of the application/project, used as a prefix when naming resources."
+  type        = string
+}
+
+variable "environment" {
+  description = "Environment name (e.g. dev, staging, prod), used as a prefix when naming resources."
+  type        = string
+}
+
+variable "tags" {
+  description = "Additional tags applied to the distribution."
+  type        = map(string)
+  default     = {}
+}
+
+########################################
+# Distribution
+########################################
+
+variable "enabled" {
+  description = "Whether the distribution accepts requests."
+  type        = bool
+  default     = true
+}
+
+variable "comment" {
+  description = "Comment shown in the CloudFront console."
+  type        = string
+  default     = null
+}
+
+variable "aliases" {
+  description = "Alternate domain names (CNAMEs) served by the distribution. Requires an ACM certificate in us-east-1."
   type        = list(string)
   default     = []
 }
 
-variable "comment" {
-  description = "Any comments you want to include about the distribution."
-  type        = string
-  default     = null
-}
 variable "default_root_object" {
-  description = "The object that you want CloudFront to return"
+  description = "Object returned for a request to the root URL, for example `index.html`."
   type        = string
-  default     = null
-
-}
-
-variable "distribution_state" {
-  description = "Whether the distribution is enabled to accept end user requests for content."
-  type        = bool
   default     = null
 }
 
-variable "max_http_version" {
-  description = "The maximum HTTP version to support on the distribution. Allowed values are http1.1 and http2"
+variable "http_version" {
+  description = "Maximum HTTP version: `http1.1`, `http2`, `http2and3` or `http3`."
   type        = string
-  default     = null
+  default     = "http2and3"
 }
 
 variable "price_class" {
-  description = "(optional) describe your variable"
+  description = "Edge locations used: `PriceClass_All`, `PriceClass_200` or `PriceClass_100`."
+  type        = string
+  default     = "PriceClass_100"
+}
+
+variable "ipv6_enabled" {
+  description = "Serve the distribution over IPv6 as well as IPv4."
+  type        = bool
+  default     = true
+}
+
+variable "web_acl_id" {
+  description = "ARN of a WAFv2 web ACL (must be in us-east-1) or the ID of a WAF Classic ACL."
   type        = string
   default     = null
 }
 
-variable "waf_acl_id" {
-  description = "The price class for this distribution. One of PriceClass_All, PriceClass_200, PriceClass_100"
-  type        = string
-  default     = null
-}
-
-
-#Specify either default Cloudfront SSL or Custom ACM SSL
-variable "viewer_certificate" {
-  description = <<-EOT
-  acm_certificate_arn : ACM arn
-  cloudfront_default_certificaten : if you want viewers to use HTTPS to request your objects and you're using the CloudFront domain name for your distribution.
-  minimum_protocol_version : One of SSLv3, TLSv1, TLSv1_2016, TLSv1.1_2016 or TLSv1.2_2018. Default: TLSv1
-  EOT
-  type = list(object({
-    acm_certificate_arn            = string
-    cloudfront_default_certificate = bool
-    minimum_protocol_version       = string
-    iam_certificate_id             = string
-    ssl_support_method             = string
-  }))
-  default = []
-}
-
-variable "s3_origin_config" {
-  description = "If an S3 origin is required, specify true."
+variable "retain_on_delete" {
+  description = "Disable the distribution instead of deleting it on destroy."
   type        = bool
   default     = false
-
-}
-#Specify S3 origin or Cusomt origin
-variable "cloudfront_origin" {
-  description = <<-EOT
-  http_port : The HTTP port the custom origin listens on
-  https_port : The HTTPS port the custom origin listens on
-  origin_protocol_policy : The origin protocol policy to apply to your origin. One of http-only, https-only, or match-viewer
-  origin_ssl_protocols : A list of one or more of SSLv3, TLSv1, TLSv1.1, and TLSv1.2
-  domain_name : The DNS domain name of either the S3 bucket, or web site of your custom
-  origin_id : A unique identifier for the origin
-  origin_path : An optional element that causes CloudFront to request your content from a directory in your Amazon S3 bucket or your custom origin
-  EOT
-  type = list(object({
-    custom_origin_config = list(object({
-      http_port              = string
-      https_port             = string
-      origin_protocol_policy = string
-      origin_ssl_protocols   = list(string)
-    }))
-    domain_name = string
-    origin_id   = string
-    origin_path = string
-  }))
-  default = []
 }
 
-#Multiple Origin Groups with Failover mechanism using "member" parameter
-variable "cloudfront_origin_group" {
+variable "wait_for_deployment" {
+  description = "Wait for the distribution to finish deploying before the apply returns. Deployments take several minutes."
+  type        = bool
+  default     = true
+}
+
+########################################
+# Origins
+########################################
+
+variable "origins" {
   description = <<-EOT
-  origin_id : A unique identifier for the origin group
-  failover_criteria_status_code : The failover criteria for when to failover to the secondary origin
-  member : Ordered member configuration blocks assigned to the origin group, where the first member is the primary origin. You must specify two members.
+  Origins keyed by origin ID. Set `type` to `s3` for a bucket, which gets an Origin Access Control
+  so the bucket can stay private, or `custom` for anything else, which then needs `custom_origin_config`.
+  Use the bucket's regional domain name for S3 origins.
   EOT
-  type = list(object({
-    origin_id                     = string
-    failover_criteria_status_code = list(string)
-    member = list(object({
-      origin_id = string
+  type = map(object({
+    domain_name          = string
+    type                 = optional(string, "s3")
+    origin_path          = optional(string)
+    connection_attempts  = optional(number)
+    connection_timeout   = optional(number)
+    custom_headers       = optional(map(string), {})
+    origin_shield_region = optional(string)
+    custom_origin_config = optional(object({
+      http_port                = optional(number, 80)
+      https_port               = optional(number, 443)
+      origin_protocol_policy   = optional(string, "https-only")
+      origin_ssl_protocols     = optional(list(string), ["TLSv1.2"])
+      origin_read_timeout      = optional(number)
+      origin_keepalive_timeout = optional(number)
     }))
   }))
-  default = []
+
+  validation {
+    condition     = alltrue([for o in var.origins : contains(["s3", "custom"], o.type)])
+    error_message = "origin type must be s3 or custom."
+  }
+
+  validation {
+    condition     = alltrue([for o in var.origins : o.type != "custom" || o.custom_origin_config != null])
+    error_message = "custom origins require custom_origin_config."
+  }
 }
 
-#Custom Error Page and Responses you want Cloudfront to redirect
-variable "cloudfront_custom_error_response" {
-  description = <<-EOT
-  error_code : The minimum amount of time you want HTTP error codes to stay
-  response_code : The 4xx or 5xx HTTP status code that you want to customize.
-  error_caching_min_ttl : The HTTP status code that you want CloudFront to return with the custom error page to the viewer.
-  response_page_path : The path of the custom error page (for example, /custom_404.html).
- EOT
-  type = list(object({
-    error_code            = string
-    response_code         = string
-    error_caching_min_ttl = string
-    response_page_path    = string
+variable "origin_groups" {
+  description = "Origin groups keyed by group ID, used for origin failover. `members` lists origin IDs, primary first."
+  type = map(object({
+    members               = list(string)
+    failover_status_codes = optional(list(number), [403, 404, 500, 502, 503, 504])
   }))
-  default = []
+  default = {}
 }
 
-# Default Cache, can be Maximum one,
-variable "cloudfront_default_cache_behavior" {
+########################################
+# Cache behaviors
+########################################
+
+variable "default_cache_behavior" {
   description = <<-EOT
-  path_pattern : Specifies which requests you want this cache behavior to apply to.
-  allowed_http_methods : Controls which HTTP methods CloudFront processes and forwards
-  cached_http_methods : Controls whether CloudFront caches the response to requests using the specified HTTP methods, two options:  GET and HEAD, GET, HEAD, and OPTIONS requests.
-  automatically_Compress_objects : Want CloudFront to automatically compress content for web requests
-  default_ttl : Default time object is in Cache
-  smooth_streaming : whether you want to distribute media files in Microsoft Smooth Streaming format
-  trusted_signers : The AWS accounts, if any, that you want to allow to create signed URLs for private content.
-  viewer_protocol_policy : One of allow-all, https-only, or redirect-to-https
+  Default cache behavior. Prefer `cache_policy_name` with a CloudFront managed policy
+  (`CachingOptimized`, `CachingDisabled`, `CachingOptimizedForUncompressedObjects`) over passing raw IDs.
+  `origin_request_policy_name` controls what reaches the origin, for example `AllViewerExceptHostHeader`.
+  `function_associations` maps an event type to a CloudFront Function ARN.
   EOT
+  type = object({
+    target_origin_id       = string
+    viewer_protocol_policy = optional(string, "redirect-to-https")
+    allowed_methods        = optional(list(string), ["GET", "HEAD", "OPTIONS"])
+    cached_methods         = optional(list(string), ["GET", "HEAD"])
+    compress               = optional(bool, true)
+    smooth_streaming       = optional(bool)
+
+    cache_policy_name            = optional(string, "CachingOptimized")
+    cache_policy_id              = optional(string)
+    origin_request_policy_name   = optional(string)
+    origin_request_policy_id     = optional(string)
+    response_headers_policy_name = optional(string, "SecurityHeadersPolicy")
+    response_headers_policy_id   = optional(string)
+
+    trusted_key_groups = optional(list(string))
+    trusted_signers    = optional(list(string))
+
+    function_associations = optional(map(string), {})
+    lambda_function_associations = optional(map(object({
+      arn          = string
+      include_body = optional(bool, false)
+    })), {})
+  })
+}
+
+variable "ordered_cache_behaviors" {
+  description = "Additional cache behaviors, evaluated in order. Same shape as `default_cache_behavior` plus `path_pattern`."
   type = list(object({
-    allowed_http_methods           = list(string)
-    cached_http_methods            = list(string)
-    automatically_compress_objects = bool
-    default_ttl                    = number
-    max_ttl                        = number
-    min_ttl                        = number
-    smooth_streaming               = bool
-    trusted_signers                = list(string)
-    trusted_key_groups             = list(string)
-    target_origin_id               = string
-    viewer_protocol_policy         = string
-    #Specifies how CloudFront handles query strings, cookies and headers
-    forwarded_values = list(object({
-      forward_cookies      = string
-      whitelisted_cookies  = set(string)
-      forward_query_string = bool
-      headers              = set(string)
-    })),
-    #A config block that triggers a lambda function with specific actions
-    lambda_function_association = list(object({
-      lambda_event_type = string
-      lambda_arn        = string
-      include_body      = bool
-    }))
+    path_pattern           = string
+    target_origin_id       = string
+    viewer_protocol_policy = optional(string, "redirect-to-https")
+    allowed_methods        = optional(list(string), ["GET", "HEAD", "OPTIONS"])
+    cached_methods         = optional(list(string), ["GET", "HEAD"])
+    compress               = optional(bool, true)
+    smooth_streaming       = optional(bool)
+
+    cache_policy_name            = optional(string, "CachingOptimized")
+    cache_policy_id              = optional(string)
+    origin_request_policy_name   = optional(string)
+    origin_request_policy_id     = optional(string)
+    response_headers_policy_name = optional(string)
+    response_headers_policy_id   = optional(string)
+
+    trusted_key_groups = optional(list(string))
+    trusted_signers    = optional(list(string))
+
+    function_associations = optional(map(string), {})
+    lambda_function_associations = optional(map(object({
+      arn          = string
+      include_body = optional(bool, false)
+    })), {})
   }))
   default = []
 }
 
-#Multiple Ordered Cache Behavior
-variable "cloudfront_ordered_cache_behavior" {
-  description = <<-EOT
-  path_pattern : Specifies which requests you want this cache behavior to apply to.
-  allowed_http_methods : Controls which HTTP methods CloudFront processes and forwards
-  cached_http_methods : Controls whether CloudFront caches the response to requests using the specified HTTP methods
-  automatically_Compress_objects : Want CloudFront to automatically compress content for web requests
-  default_ttl : Default time object is in Cache
-  smooth_streaming : whether you want to distribute media files in Microsoft Smooth Streaming format
-  trusted_signers : The AWS accounts, if any, that you want to allow to create signed URLs for private content.
-  viewer_protocol_policy : One of allow-all, https-only, or redirect-to-https
-  EOT
+########################################
+# Errors, TLS, restrictions, logging
+########################################
+
+variable "custom_error_responses" {
+  description = "Custom error responses. Useful for single page apps, which map 403 and 404 to `/index.html` with response code 200."
   type = list(object({
-    path_pattern                   = string
-    allowed_http_methods           = list(string)
-    cached_http_methods            = list(string)
-    automatically_Compress_objects = bool
-    default_ttl                    = number
-    max_ttl                        = number
-    min_ttl                        = number
-    smooth_streaming               = bool
-    trusted_signers                = string
-    target_origin_id               = string
-    viewer_protocol_policy         = string
-    #Specifies how CloudFront handles query strings, cookies and headers
-    forwarded_values = list(object({
-      forward_cookies      = string
-      whitelisted_cookies  = string
-      forward_query_string = string
-      headers              = string
-    }))
-    #A config block that triggers a lambda function with specific actions
-    lambda_function_association = list(object({
-      lambda_event_type = string
-      lambda_arn        = string
-      include_body      = bool
-    }))
-  }))
-  default = []
-}
-#Want to enable Geo Restriction in Cloudfront
-variable "restrictions" {
-  description = <<-EOT
-  locations : The ISO 3166-1-alpha-2  locations code
-  restriction_type : Restrict distribution of your content by country: none, whitelist, or blacklist.
-  EOT
-  type = list(object({
-    locations        = list(string)
-    restriction_type = string
+    error_code            = number
+    response_code         = optional(number)
+    response_page_path    = optional(string)
+    error_caching_min_ttl = optional(number)
   }))
   default = []
 }
 
-#controls how logs are written to your distribution
-variable "cloudfront_logging_config" {
-  description = <<-EOT
-  s3_bucket_name : The Amazon S3 bucket to store the access logs in
-  include_cookies :  Specifies whether you want CloudFront to include cookies in access logs
-  s3_bucket_name_prefix : An optional string that you want CloudFront to prefix to the access log filenames
-  EOT
-  type = list(object({
-    s3_bucket_name        = string
-    include_cookies       = bool
-    s3_bucket_name_prefix = string
-  }))
-  default = []
+variable "viewer_certificate" {
+  description = "TLS certificate for the distribution. Leave `acm_certificate_arn` null to use the default `*.cloudfront.net` certificate. ACM certificates must be in us-east-1."
+  type = object({
+    acm_certificate_arn      = optional(string)
+    iam_certificate_id       = optional(string)
+    ssl_support_method       = optional(string, "sni-only")
+    minimum_protocol_version = optional(string, "TLSv1.2_2021")
+  })
+  default = {}
 }
 
-#Want Restricting Access to Amazon S3 Content by Using an Origin Access Identity, so only Cloudfront can access it
-#Configure your S3 bucket permissions so that CloudFront can use the OAI to access the files in your bucket and serve them to your users.
-#Make sure that users can’t use a direct URL to the S3 bucket to access a file there.
-variable "s3_origin_identity_enabled" {
-  type        = string
-  description = "S3 Origin ?"
-  default     = "Yes"
+variable "geo_restriction" {
+  description = "Geographic restriction. `restriction_type` is `none`, `whitelist` or `blacklist`, and `locations` holds ISO 3166 country codes."
+  type = object({
+    restriction_type = optional(string, "none")
+    locations        = optional(list(string), [])
+  })
+  default = {}
 }
 
-variable "environment" {
-  type        = string
-  description = "Name of the Environment (to be used as Prefix in naming resources)"
-  default     = "testing"
+variable "logging" {
+  description = "Standard access logging to an S3 bucket. The bucket must have ACLs enabled, since CloudFront log delivery writes with an ACL."
+  type = object({
+    bucket          = string
+    prefix          = optional(string)
+    include_cookies = optional(bool, false)
+  })
+  default = null
 }
-
-variable "project_name" {
-  type        = string
-  description = "Name of the Application/Project (to be used as Prefix in naming resources)"
-  default     = "asgard-infra-templates"
-}
-
