@@ -1,5 +1,9 @@
 variable "ssm_parameter" {
-  description = "description"
+  description = <<-EOT
+  SSM parameters to create. `type` is `String`, `StringList` or `SecureString`; `SecureString`
+  is encrypted with `key_id`, or the account's default SSM key when that is null.
+  `tier` is `Standard`, `Advanced` or `Intelligent-Tiering`.
+  EOT
   type = list(object({
     name            = string
     type            = string

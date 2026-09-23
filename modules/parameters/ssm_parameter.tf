@@ -12,6 +12,7 @@ resource "aws_ssm_parameter" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${lookup(var.ssm_parameter[count.index], "name", null)}-ssm_parameter"
   }
 }

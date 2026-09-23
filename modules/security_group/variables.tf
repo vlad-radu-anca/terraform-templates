@@ -1,5 +1,11 @@
 variable "security_group" {
-  description = "description"
+  description = <<-EOT
+  Security groups to create. Each entry names the group, the VPC it belongs to, and its
+  ingress and egress rules. Within a rule, `cidr_blocks`, `security_groups` and `self`
+  are the possible sources; set `protocol` to `-1` with ports `0` to allow all traffic.
+  `revoke_rules_on_delete` revokes all rules before deleting the group, which helps when
+  groups reference each other.
+  EOT
   type = list(object({
     name                   = string
     revoke_rules_on_delete = bool

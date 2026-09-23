@@ -11,6 +11,7 @@ resource "aws_ecs_cluster" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${each.value}-ecs_cluster"
   }
 }
@@ -119,14 +120,14 @@ locals {
     mountPoints            = var.mount_points
     volumesFrom            = var.volumes_from
     dependsOn              = var.container_depends_on
-    startTimeout           = var.startTimeout
-    stopTimeout            = var.stopTimeout
+    startTimeout           = var.start_timeout
+    stopTimeout            = var.stop_timeout
     hostname               = var.container_hostname
     user                   = var.user
     workingDirectory       = var.container_working_directory
-    disableNetworking      = var.disableNetworking
+    disableNetworking      = var.disable_networking
     privileged             = var.privileged
-    readonlyRootFilesystem = var.readonlyRootFilesystem
+    readonlyRootFilesystem = var.readonly_root_filesystem
     dnsServers             = var.dns_servers
     dnsSearchDomains       = var.dns_search_domains
     extraHosts             = var.extra_hosts
@@ -177,6 +178,7 @@ resource "aws_ecs_task_definition" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${each.value}-ecs_task_definition"
   }
 }

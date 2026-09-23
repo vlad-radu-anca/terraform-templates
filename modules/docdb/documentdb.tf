@@ -6,6 +6,7 @@ resource "aws_docdb_subnet_group" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${var.db_subnet_group_name}-docdb_db_subnet_group_name"
   }
 }
@@ -25,6 +26,7 @@ resource "aws_docdb_cluster_instance" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${var.instance_indetifier}-docdb_cluster_instance"
   }
 }
@@ -55,6 +57,7 @@ resource "aws_docdb_cluster" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${var.cluster_identifier}-docdb_cluster"
   }
 }

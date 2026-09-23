@@ -10,6 +10,7 @@ resource "aws_instance" "this" {
   get_password_data      = var.get_password_data
   vpc_security_group_ids = var.vpc_security_group_ids
   iam_instance_profile   = var.iam_instance_profile
+  source_dest_check      = var.source_dest_check
 
   associate_public_ip_address = var.associate_public_ip_address
 

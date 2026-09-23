@@ -15,6 +15,7 @@ resource "aws_codestarnotifications_notification_rule" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${each.value}-codestar"
   }
 }

@@ -1,70 +1,50 @@
-variable "health_check_config" {
-  description = "description"
-  type = list(object({
-    failure_threshold = number
-    resource_path     = string
-    type              = string
-  }))
-  default = []
-}
-
-
-
-variable "health_check_custom_config" {
-  description = "description"
-  type = list(object({
-    failure_threshold = number
-  }))
-  default = []
-}
-
 variable "alb_name" {
-  description = "description"
+  description = "Name of the load balancer. Must be unique per region and at most 32 characters."
   type        = string
   default     = null
 }
 
 variable "internal" {
-  description = "description"
+  description = "Create an internal load balancer with private addresses only, rather than an internet-facing one."
   type        = bool
   default     = false
 }
 
 variable "load_balancer_type" {
-  description = "description"
+  description = "Type of load balancer: `application`, `network` or `gateway`."
   type        = string
   default     = null
 }
 variable "alb_security_groups" {
-  description = "description"
+  description = "Security groups attached to the load balancer. Applies to application load balancers."
   type        = list(string)
   default     = []
 }
 variable "alb_subnets" {
-  description = "description"
+  description = "Subnets the load balancer is placed in. Use at least two, in different availability zones."
   type        = list(string)
   default     = []
 }
 variable "idle_timeout" {
-  description = "description"
+  description = "Seconds a connection can be idle before the load balancer closes it. Application load balancers only."
   type        = number
   default     = null
 }
 
 variable "enable_deletion_protection" {
-  description = "description"
+  description = "Prevent the load balancer from being deleted. Recommended for production."
   type        = bool
   default     = false
 }
 
 variable "enable_cross_zone_load_balancing" {
-  description = "description"
+  description = "Distribute traffic evenly across all availability zones. Always on for application load balancers, chargeable for network load balancers."
   type        = bool
   default     = false
 }
 
 variable "access_logs" {
-  description = "description"
+  description = "Access logging to an S3 bucket. The bucket policy must allow the ELB log delivery account to write."
   type = list(object({
     bucket  = string
     prefix  = string
@@ -74,7 +54,7 @@ variable "access_logs" {
 }
 
 variable "subnet_mapping" {
-  description = "description"
+  description = "Subnets with a specific Elastic IP per subnet. Used with network load balancers instead of `alb_subnets`."
   type = list(object({
     subnet_id     = string
     allocation_id = string
@@ -83,7 +63,7 @@ variable "subnet_mapping" {
 }
 
 variable "lb_listener" {
-  description = "description"
+  description = "Listeners for the load balancer. Each entry sets the port and protocol, the TLS policy and certificate for HTTPS, and the default action taken when no listener rule matches."
   type = list(object({
     load_balancer_arn     = string
     alb_listener_port     = number
@@ -123,71 +103,15 @@ variable "lb_listener" {
 
 
 /*
-variable "load_balancer_arn" {
-  description = "description"
-  type        = string
-  default     = null
-}
 
-variable "alb_listener_port" {
-  description = "description"
-  type        = number
-  default     = null
-}
 
-variable "alb_listener_protocol" {
-  description = "description"
-  type        = string
-  default     = "HTTP"
-}
 
-variable "ssl_policy" {
-  description = "description"
-  type        = string
-  default     = null
-}
 
-variable "certificate_arn" {
-  description = "description"
-  type        = string
-  default     = null
-}
 
-variable "default_action" {
-  description = "description"
-  type        = list(object({
-    type = string
-    target_group_arn = string
-    forward = list(object({
-      target_group = list(object({
-        arn = string
-        weight = number
-      }))
-      stickiness = list(object({
-        enabled = bool
-        duration = number
-      }))
-    }))
-    redirect = list(object({
-        host = string
-        path = string
-        port = string
-        protocol = string
-        query = string
-        status_code = string
-    }))
-    fixed_response = list(object({
-        content_type = string
-        message_body = string
-        status_code = string
-    }))
-  }))
-  default     = []
-}
 
 */
 variable "attach_certs_to_alb" {
-  description = "description"
+  description = "Additional certificates attached to an existing HTTPS listener, for serving several domains from one listener."
   type = list(object({
     listener_arn    = string
     certificate_arn = string
@@ -196,7 +120,7 @@ variable "attach_certs_to_alb" {
 }
 
 variable "listener_rule" {
-  description = "description"
+  description = "Listener rules evaluated in `priority` order. Each rule pairs conditions (host header, path pattern and so on) with an action such as forwarding to a target group."
   type = list(object({
     listener_arn = string
     priority     = string
@@ -243,7 +167,7 @@ variable "listener_rule" {
 }
 
 variable "lb_target_group" {
-  description = "description"
+  description = "Target groups for the load balancer, including health check settings, stickiness and the load balancing algorithm."
   type = list(object({
     alb_tg_name                   = string
     alb_tg_port                   = number
@@ -273,7 +197,7 @@ variable "lb_target_group" {
 }
 
 variable "lb_target_group_attachment" {
-  description = "description"
+  description = "Targets registered into a target group, by instance ID, IP address or Lambda function ARN."
   type = list(object({
     target_group_arn  = string
     target_id         = string
