@@ -102,14 +102,6 @@ variable "lb_listener" {
 }
 
 
-/*
-
-
-
-
-
-
-*/
 variable "attach_certs_to_alb" {
   description = "Additional certificates attached to an existing HTTPS listener, for serving several domains from one listener."
   type = list(object({
