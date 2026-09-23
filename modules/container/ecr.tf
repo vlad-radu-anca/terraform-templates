@@ -16,6 +16,7 @@ resource "aws_ecr_repository" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "ecr_repo-${each.value}"
   }
 }

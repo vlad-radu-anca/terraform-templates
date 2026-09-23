@@ -14,6 +14,7 @@ resource "aws_wafv2_web_acl" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${var.name}-waf"
   }
 }

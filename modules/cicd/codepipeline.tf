@@ -44,6 +44,7 @@ resource "aws_codepipeline" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${each.value}-codepipeline_project"
   }
 

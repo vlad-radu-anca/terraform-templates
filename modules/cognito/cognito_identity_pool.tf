@@ -17,6 +17,7 @@ resource "aws_cognito_identity_pool" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${each.value}-cognito-identity-pool"
   }
 }

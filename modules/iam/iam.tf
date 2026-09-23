@@ -5,6 +5,7 @@ resource "aws_iam_role" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${lookup(var.iam_role[count.index], "name", null)}"
   }
 

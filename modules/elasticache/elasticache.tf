@@ -30,6 +30,7 @@ resource "aws_elasticache_cluster" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${var.cluster_id}-elasticache_cluster"
   }
 }

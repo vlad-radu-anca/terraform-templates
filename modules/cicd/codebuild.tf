@@ -89,6 +89,7 @@ resource "aws_codebuild_project" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${each.value}-codebuild_project"
   }
 }

@@ -32,6 +32,7 @@ resource "aws_security_group" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${lookup(var.security_group[count.index], "name", null)}-sg"
   }
 }

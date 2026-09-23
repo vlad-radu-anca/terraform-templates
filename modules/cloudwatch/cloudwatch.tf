@@ -7,7 +7,8 @@ resource "aws_cloudwatch_log_group" "cloudwatch_log_group" {
   tags = {
     Terraform   = true
     Environment = var.environment
-    Name        = "${each.value}"
+    Project     = var.project_name
+    Name        = each.value
   }
 }
 
@@ -27,6 +28,7 @@ resource "aws_cloudwatch_event_rule" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${each.value.name}-event"
   }
 }

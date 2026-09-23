@@ -263,13 +263,13 @@ variable "essential" {
   default     = true
 }
 
-variable "startTimeout" {
+variable "start_timeout" {
   description = "Time duration (in seconds) to wait before giving up on resolving dependencies for a container."
   type        = number
   default     = null
 }
 
-variable "stopTimeout" {
+variable "stop_timeout" {
   description = "Time duration (in seconds) to wait before the container is forcefully killed if it doesn't exit normally on its own."
   type        = number
   default     = null
@@ -281,7 +281,7 @@ variable "health_check" {
   default     = null
 }
 
-variable "disableNetworking" {
+variable "disable_networking" {
   description = "When this parameter is true, networking is disabled within the container."
   type        = bool
   default     = false
@@ -293,7 +293,7 @@ variable "privileged" {
   default     = false
 }
 
-variable "readonlyRootFilesystem" {
+variable "readonly_root_filesystem" {
   description = "When this parameter is true, the container is given read-only access to its root file system."
   type        = bool
   default     = true

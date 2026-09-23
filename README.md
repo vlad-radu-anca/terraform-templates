@@ -91,7 +91,7 @@ pre-commit install
 
 - Inputs are typed and documented. Optional object attributes use `optional()` with defaults, so callers only set what they need.
 - Collections of resources are keyed maps driven by `for_each`, not lists indexed by `count`, so removing one element never recreates its neighbours. Older modules are being moved to this pattern as they are touched.
-- Every module accepts `project_name`, `environment` and `tags`, and tags every resource with `Terraform`, `Environment` and `Project`.
+- Modules take `project_name` and `environment` and tag the resources they create with `Terraform`, `Environment` and `Project`. The modules rewritten so far (`rds`, `eks`, `database`, `s3`, `opensearch`, `cdn`) also accept a `tags` map that is merged on top; the remaining modules are gaining it as they are reworked.
 - Secrets never live in variables with defaults. Where AWS can manage a secret (RDS master password), the module uses that.
 - Modules create the IAM roles they need (RDS monitoring, EKS cluster and node roles) but accept an existing role ARN instead.
 

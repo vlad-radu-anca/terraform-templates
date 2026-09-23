@@ -1,5 +1,5 @@
 variable "codebuild_project" {
-  description = "description"
+  description = "Names of the CodeBuild projects to create. Each name is also the key used in the other CodeBuild variables."
   type        = list(string)
   default     = []
 }

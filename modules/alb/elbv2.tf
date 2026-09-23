@@ -29,6 +29,7 @@ resource "aws_lb" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${var.alb_name}-alb"
   }
 
@@ -221,6 +222,7 @@ resource "aws_lb_target_group" "this" {
   tags = {
     Terraform   = true
     Environment = var.environment
+    Project     = var.project_name
     Name        = "${lookup(var.lb_target_group[count.index], "alb_tg_name", null)}-alb-tg"
   }
   depends_on = [aws_lb.this]
