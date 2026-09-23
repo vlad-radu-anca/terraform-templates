@@ -24,7 +24,7 @@ The modules were originally written in 2021 for Terraform 0.13 and AWS provider 
 | [`elasticache`](modules/elasticache) | ElastiCache cluster | |
 | [`opensearch`](modules/opensearch) | OpenSearch domain, security group, log groups and log resource policy | Encrypted, HTTPS enforced, VPC placed, FGAC |
 | [`s3`](modules/s3) | Bucket, public access block, encryption, versioning, lifecycle, logging, CORS, website, policy | Secure by default |
-| [`cdn`](modules/cdn) | CloudFront distribution, origin access identity | |
+| [`cdn`](modules/cdn) | CloudFront distribution, origin access control | Cache policies, S3 and custom origins, origin groups |
 | [`cloudfront_key_group`](modules/cloudfront_key_group) | CloudFront public keys and key groups | Signed URLs |
 | [`waf`](modules/waf) | WAFv2 web ACL and association | |
 | [`cognito`](modules/cognito) | Cognito user pool, domain, identity pool | |
@@ -99,8 +99,8 @@ pre-commit install
 
 In order:
 
-1. `cdn`: cache and origin request policies instead of `forwarded_values`
-2. Descriptions for every variable, generated READMEs with terraform-docs, `examples/` for every module
+1. Descriptions for every variable, generated READMEs with terraform-docs, `examples/` for every module
+2. Reference architectures under a top-level `examples/` directory
 3. Tag `v1.0.0`
 
 ## License
