@@ -97,11 +97,12 @@ pre-commit install
 
 ## Roadmap
 
-In order:
+Planned after `v1.0.0`:
 
-1. Descriptions for every variable, generated READMEs with terraform-docs, `examples/` for every module
-2. Reference architectures under a top-level `examples/` directory
-3. Tag `v1.0.0`
+1. `alb`, `lambda`, `iam`, `parameters` and `security_group` still index parallel lists with `count`. Move them to `for_each` maps, like the modules already reworked.
+2. Generated input and output tables with terraform-docs, and a README for every module.
+3. An `examples/` directory for the modules that do not have one yet.
+4. Reference architectures under a top-level `examples/` directory, composing several modules into a working system.
 
 ## License
 
