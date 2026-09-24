@@ -19,7 +19,6 @@ variable "encryption_configuration" {
   default = null
 }
 
-
 variable "scan_on_push" {
   description = "Indicates whether images are scanned after being pushed to the repository (true) or not scanned (false)"
   type        = bool
@@ -37,7 +36,6 @@ variable "ecr_repository_policy_repo_name" {
   type        = list(string)
   default     = []
 }
-
 
 variable "ecs_cluster" {
   description = "The name of the cluster (up to 255 letters, numbers, hyphens, and underscores)"
@@ -69,15 +67,6 @@ variable "setting" {
   }))
   default = []
 }
-
-# variable "ecs_service_name_and_task_defintion" {
-#   description = "Provide ECS Service name and task definiton family and revision (family:revision) or full ARN of the task definition that you want to run in your service."
-#   type        = list(object({
-#     name            = string
-#     task_definition = string
-#   }))
-#   default     = []
-# }
 
 variable "service_name" {
   description = "List of ECS Service names"
@@ -359,14 +348,11 @@ variable "dns_search_domains" {
   default     = null
 }
 
-
 variable "extra_hosts" {
   description = "A list of hostnames and IP address mappings to append to the /etc/hosts file on the container."
   type        = any
   default     = null
 }
-
-
 
 variable "mount_points" {
   description = "The mount points for data volumes in your container."
@@ -415,7 +401,6 @@ variable "task_role_arn" {
   type        = string
   default     = null
 }
-
 
 variable "execution_role_arn" {
   description = "The Amazon Resource Name (ARN) of the task execution role that the Amazon ECS container agent and the Docker daemon can assume."
@@ -483,7 +468,6 @@ variable "ecr_repository_policy_file" {
   default     = null
 }
 
-
 variable "environment" {
   type        = string
   description = "Name of the Environment (to be used as Prefix in naming resources)"
@@ -495,8 +479,4 @@ variable "project_name" {
   description = "Name of the Application/Project (to be used as Prefix in naming resources)"
   default     = "asgard-infra-templates"
 }
-
-
-
-
 
